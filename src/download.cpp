@@ -12,7 +12,7 @@ using namespace std;
 
 void vbs_body(string s, unsigned int i)
 {
-    system("md download");
+
     ofstream o;
     o.open("tmp_download.vbs");
 
@@ -43,6 +43,35 @@ void vbs_body(string s, unsigned int i)
     o.close();
 }
 
+void vbs_body_force(int t, string s, unsigned int i)
+{
+    ofstream o;
+    o.open("tmp_download.vbs");
+
+    o << "Dim Url, Target" << endl;
+    o << "Url = \"" << s << "\"" << endl;
+    o << "dim a" << endl << endl;
+    o << "a=" << t << endl;
+    o << "Target = a&\".jpg\" " << endl;
+    o << "Download Url,Target " << endl << endl;
+    o << "Sub Download(url,target) " << endl;
+    o << "  Const adTypeBinary = 1 " << endl;
+    o << "  Dim http,ado  " << endl;
+    o << "  Const adSaveCreateOverWrite = 2 " << endl;
+    o << "  Set http = CreateObject(\"Msxml2.ServerXMLHTTP\") " << endl;
+    o << "  http.open \"GET\",url,False " << endl;
+    o << "  http.send " << endl;
+    o << "  Set ado = createobject(\"Adodb.Stream\") " << endl;
+    o << "  ado.Type = adTypeBinary " << endl;
+    o << "  ado.Open " << endl;
+    o << "  ado.Write http.responseBody " << endl;
+    o << "  ado.SaveToFile target " << endl;
+    o << "  ado.Close " << endl;
+    o << "End Sub " << endl;
+
+    o.close();
+}
+
 int main(int argc, char const *argv[])
 {
     string ss;
@@ -53,13 +82,33 @@ int main(int argc, char const *argv[])
     cout << "What's the number you are expected = ";
     cin >> i;
 
-    vbs_body(ss, i);
+    cout << "Please input '1' for quick mode and '2' for force mode = ";
+
+    int mode;
+    cin >> mode;
+
+    system("md download");
 
     system("cls & echo Start to grap...");
 
-    system("wscript tmp_download.vbs");
+    if(mode == 1){
+        vbs_body(ss, i);
 
-    system("del tmp_download.vbs");
+        system("wscript tmp_download.vbs");
+
+        system("del tmp_download.vbs");
+    }
+    else{
+
+        for(int ii =0; ii < i; ii++){
+
+            vbs_body_force(ii, ss, i);
+            system("wscript tmp_download.vbs");
+            system("del tmp_download.vbs");
+            cout << "Downloading " << ii << "/" << i << " ..." << endl;
+        }
+    }
+
 
     system("echo Grap finished !!!");
 
